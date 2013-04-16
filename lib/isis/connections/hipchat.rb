@@ -88,7 +88,7 @@ class Isis::Connections::HipChat < Isis::Connections::Base
       else
         bot.plugins.each do |plugin|
           begin
-            response = plugin.receive_message(message, speaker)
+            response = plugin.receive_message(message, speaker, @muc.key(muc))
             unless response.nil?
               if response.respond_to?('each')
                 response.each {|line| speak(muc, line)}
@@ -118,14 +118,28 @@ class Isis::Connections::HipChat < Isis::Connections::Base
     end
   end
 
+  # Add HTML container, create Jabber::Message
+  # Or not.. because Hipchat still doesn't support html-im
+  def _message(room, message)
+    return Jabber::Message.new(room, message)
+
+    text = message.respond_to?(:to_text) ? message : message.to_s
+    m = Jabber::Message.new(room, text)
+    m.add(message) rescue nil
+    puts m.inspect
+    m
+  end
+
   def yell(message)
     @muc.each do |room,muc|
-      muc.send Jabber::Message.new(muc.room, message)
+      m = _message(muc.room, message)
+      muc.send m
     end
   end
 
   def speak(muc, message)
-    muc.send Jabber::Message.new(muc.room, message)
+    m = _message(muc.room, message)
+    muc.send m
   end
 
   def still_connected?
