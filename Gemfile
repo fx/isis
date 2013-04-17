@@ -23,6 +23,7 @@ gem 'nokogiri'
 gem 'amatch'
 #gem 'em-timers', :git => "https://github.com/g1nn13/em-timers.git"
 gem 'hipchat'
+gem 'heroku-api'
 
 gem "colored", "~> 1.2"
 
